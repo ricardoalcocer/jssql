@@ -1,0 +1,31 @@
+#center-container h1, #center-container h1 .class-source-link {
+  color: #CD1626;
+  font-family: Tahoma;
+}
+a:link {
+  color: #996699;
+}
+a:visited {
+	color: #404040;
+}
+#north-region {
+  background: #CD1626;
+  background: -moz-linear-gradient(top,  #CD1626 0%, #CD1626 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FF000), color-stop(100%,#FF000));
+  background: -webkit-linear-gradient(top,  #CD1626 0%,#CD1626 100%);
+  background: -o-linear-gradient(top,  #CD1626 0%,#CD1626 100%);
+  background: -ms-linear-gradient(top,  #CD1626 0%,#CD1626 100%);
+  background: linear-gradient(top bottom,  #CD1626 0%,#CD1626 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#CD1626', endColorstr='#CD1626',GradientType=0 );
+}
+#north-region .dropdown {
+  background-position: center right;
+}
+#north-region #header-content {
+  height: 42px;
+  background: url(project_logo.png) 0 0 no-repeat;
+  background-size: 80px 20px;
+  padding-top: 0px;
+  padding-left: 0px;
+  font-size: 16px;
+}
