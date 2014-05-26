@@ -133,12 +133,60 @@ dbhelper.prototype.edit=function(obj){
 	return this.db.rowsAffected;
 }
 
+dbhelper.prototype.createFromJSON=function(json,tableName){
+	var _that=this;
+	var fields='';
+	var fieldsPure='';
+	var obj=JSON.parse(json);
+	var fields=[];
+	var fieldsPure=[];
+
+	var columns=Object.keys(obj[0]); // get column names
+	columns.forEach(function(e){
+		fields.push(e + ' TEXT');
+		fieldsPure.push(e); // I'm also creating a string w/o the data-type to be used by the insert
+	})
+	this.db.execute('create table ' + tableName + '(' + fields.toString() + ')');
+
+	var sql='';
+	var values=[];
+	obj.forEach(function(row){
+		values=[];
+		columns.forEach(function(cols){
+			values.push('"' + row[cols] + '"');
+		})
+		sql = "INSERT INTO " + tableName + " (" + fieldsPure + ") VALUES (" + values.toString() + ")" ;
+		_that.db.execute(sql);
+	})
+}
+
 dbhelper.prototype.close=function(dbname){
 	/**
 	* Closes the database
 	* @method close
 	*/
 	this.db.close();
+}
+
+dbhelper.prototype.drop=function(tablename){
+	/**
+	* Closes the database
+	* @method close
+	*/
+	this.db.execute('DROP TABLE ' + tablename);
+}
+
+dbhelper.prototype.tableExists=function(tablename){
+	var out,rs;
+	rs=this.db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='" + tablename + "'");
+	
+	if(rs.rowCount===1){
+		rs.close();
+		return true
+	}else{
+		rs.close();
+		return false
+	}
 }
 
 function rows2json(rows){

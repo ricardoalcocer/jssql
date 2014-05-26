@@ -15,6 +15,13 @@ function doClick(e) {
 var DBH=require('com.alcoapps.dbhelper');
 var db=new DBH.dbhelper('/alco.sqlite','alco');
 	
+	var theJSON='[{"name":"Ricardo Alcocer","uid":"ralcocer","pwd":"mypass"},{"name":"Jack Bauer","uid":"jack","pwd":"thecat"}]';
+
+	if(db.tableExists('myTable')){
+		db.drop('myTable');
+	}
+	db.createFromJSON(theJSON,'myTable');		
+
 	// get records into variable
 	var myTable=db.get({
 		fields 	: '*',

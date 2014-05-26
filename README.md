@@ -76,6 +76,21 @@ Takes an SQL String and returns a JSON object with the result set
 
 	var myTable=db.exec('SELECT * FROM events where id > 5');
 	
+## CREATE FROM JSON
+Takes a flat JSON string and creates a table.  Good for times when you get data from a Web Service and then need to search or manipulate the data in any way.
+
+	db.createFromJSON(jsonString,'mytable');
+
+## DROP
+Deletes a table
+
+	db.drop('myTable');
+
+## TABLE EXISTS
+Checks if a given table exists.
+
+	var exists=db.tableExists('myTable');
+
 ## CLOSE
 Closes the database connection
 
