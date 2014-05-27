@@ -66,20 +66,19 @@ dbhelper.prototype.set=function(obj){
 	* @param {obj} object Object with the properties: table and data, which is a dictionary of field_name=value
 	*/
 	var keys=Object.keys(obj.data);
-	var vals='';
+	var vals=[];
 	keys.forEach(function(item){
 		switch(typeof obj.data[item]){
 			case "string":
-				vals+='"' + obj.data[item] + '"' + ','
+				vals.push('"' + obj.data[item] + '"');
 				break;
 			case "number":
-				vals+=obj.data[item] + ','
+				vals.push(obj.data[item]);
 				break;
 		}
 	})
-	vals=vals.substr(0,vals.length-1);
 	
-	var sql = "INSERT INTO " + obj.table + " (" + keys.toString() + ") VALUES (" + vals + ")" ;
+	var sql = "INSERT INTO " + obj.table + " (" + keys.toString() + ") VALUES (" + vals.toString() + ")" ;
 	try{
 		this.db.execute(sql);
 		return this.db.lastInsertRowId;
@@ -101,7 +100,6 @@ dbhelper.prototype.delete=function(obj){
 		var sql 	= "DELETE FROM " + obj.table;
 	}
 	
-	//console.log(sql);
 	this.db.execute(sql);
 	return this.db.rowsAffected;
 }
@@ -115,25 +113,30 @@ dbhelper.prototype.edit=function(obj){
 	*/
 	var sql="UPDATE " + obj.table + " SET ";
 	var keys=Object.keys(obj.data);
-	var sets='';
+	var sets=[];
 	keys.forEach(function(item){
 		switch(typeof obj.data[item]){
 			case "string":
-				sets += item + ' = "' + obj.data[item] + '",';
+				sets.push(item + ' = "' + obj.data[item] + '"');
 				break;
 			case "number":
-				sets += item + ' = ' + obj.data[item] + ',';
+				sets.push(item + ' = ' + obj.data[item]);
 				break;
 		}
 	})
-	sets=sets.substr(0,sets.length-1);
-	sql+=sets + ' WHERE ' + obj.where;
+	sql+=sets.toString() + ' WHERE ' + obj.where;
 	console.log(sql);
 	this.db.execute(sql);
 	return this.db.rowsAffected;
 }
 
 dbhelper.prototype.createFromJSON=function(json,tableName){
+	/**
+	* Takes a flat JSON string and a table name and creates a table
+	* @method createFromJSON
+	* @param {String} json
+	* @param {String} tableName
+	*/
 	var _that=this;
 	var fields='';
 	var fieldsPure='';
@@ -177,6 +180,12 @@ dbhelper.prototype.drop=function(tablename){
 }
 
 dbhelper.prototype.tableExists=function(tablename){
+	/**
+	* Checks if the given table exists in the current database
+	* @method tableExists
+	* @param {String} tablename
+	* @return {Boolean} True or False
+	*/
 	var out,rs;
 	rs=this.db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='" + tablename + "'");
 	
