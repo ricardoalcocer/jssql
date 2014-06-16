@@ -76,6 +76,27 @@ Takes an SQL String and returns a JSON object with the result set
 
 	var myTable=db.exec('SELECT * FROM events where id > 5');
 	
+## GET IMAGE FROM BLOB
+Returns an image from a Blob column.  In this example, assuming you have a column named 'images' inside a table named 'myimages', grab the image with ID=1
+
+	var img=db.getImage({
+		field: 'image',
+		table: 'myimages',
+		where: 'id=1'
+	});
+	win.backgroundImage=img;
+
+or
+
+	var img=db.getImage({
+		field: 'image',
+		table: 'myimages',
+		where: 'id=1'
+	},function(img){
+		win.backgroundImage=img;
+	});
+
+
 ## CREATE FROM JSON
 Takes a flat JSON string and creates a table.  Good for times when you get data from a Web Service and then need to search or manipulate the data in any way.
 

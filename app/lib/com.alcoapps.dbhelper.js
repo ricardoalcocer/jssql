@@ -59,6 +59,25 @@ dbhelper.prototype.get=function(obj,callback){
 	}
 }
 
+dbhelper.prototype.getImage=function(obj,callback){
+	/**
+	* Returns an image from a Blob field
+	* @method getImage
+	@param {Object} obj Object with the properties: field, table and where
+	@param {Function} callback Callback function to execute when the SELECT has completed.  
+	@return {Image} Image object
+	*/
+	var sql 	= "SELECT " + obj.field + " FROM " + obj.table;
+	var rs=this.db.execute(sql);
+	var img=rs.fieldByName(obj.field)
+	rs.close();
+	if (callback){
+		callback(img);
+	}else{
+		return img;
+	}
+}
+
 dbhelper.prototype.set=function(obj){
 	/**
 	* Performs an SQL INSERT
