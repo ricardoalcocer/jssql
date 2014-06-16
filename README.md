@@ -88,7 +88,7 @@ Returns an image from a Blob column.  In this example, assuming you have a colum
 
 or
 
-	var img=db.getImage({
+	db.getImage({
 		field: 'image',
 		table: 'myimages',
 		where: 'id=1'
