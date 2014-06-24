@@ -153,7 +153,7 @@ Closes the database connection
 
 	db.close();
 	
-## Contribuitors
+## Contributors
 
 * [Ricardo Alcocer](https://github.com/ricardoalcocer) - Creator and maintainer
 * [Sebastian Klaus](https://github.com/caspahouzer)
