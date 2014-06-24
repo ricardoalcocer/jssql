@@ -107,10 +107,15 @@ dbhelper.prototype.get = function (obj, callback) {
     if (obj.where) {
         sql += ' WHERE ' + obj.where
     }
+    if (obj.group) {
+        sql += ' GROUP BY ' + obj.group
+    }
     if (obj.order) {
         sql += ' ORDER BY ' + obj.order
     }
-    alert(sql);
+    if (obj.limit) {
+        sql += ' LIMIT ' + obj.limit
+    }
     if (callback) {
         callback(this.getData(sql));
     } else {
@@ -258,7 +263,6 @@ dbhelper.prototype.edit = function (obj) {
         }
     })
     sql += sets.toString() + ' WHERE ' + obj.where;
-    console.log(sql);
     this.getData(sql);
     return this.db.rowsAffected;
 }
