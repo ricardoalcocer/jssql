@@ -160,7 +160,7 @@ dbhelper.prototype.countRows = function (obj, callback) {
 
     var sql = 'SELECT COUNT(id) as counter FROM ' + obj.table;
     if (obj.where) {
-        sql += ' WHERE ' + where;
+        sql += ' WHERE ' + obj.where;
     }
 
     var result = this.getData(sql);

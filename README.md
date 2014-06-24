@@ -120,16 +120,14 @@ Returns the amount of rows returned by a give query
 
 	var totalActiveUsers=db.countRows({
 		table: 	'users',
-		where:	'active=true',
-		field: 	'email'
+		where:	'active=true'
 	});
 	
 or
 
 	db.countRows({
 		table: 	'users',
-		where:	'active=true',
-		field: 	'email'
+		where:	'active=true'
 	},function(value){
 		console.log(value);
 	});
