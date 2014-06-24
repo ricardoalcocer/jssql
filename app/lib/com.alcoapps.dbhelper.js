@@ -7,14 +7,6 @@
  *
  * @class dbhelper
  */
-
-/**
- * Creates an instance of the database class pointing to your local SQLite database
- * @constructor
- * @param {String} path Path to database to use
- * @param {String} name Name to give to your database
- * @param {Bool} remoteBackup Should the database on iOS be stored in iCloud
- */
 function dbhelper(dbpath, dbname, remoteBackup) {
 
     this.dbname = dbname;
@@ -24,11 +16,6 @@ function dbhelper(dbpath, dbname, remoteBackup) {
     }
 }
 
-/**
- * Execute an SQL Statement against the database.
- * @method exec
- * @param {String} sql SQL statement to run
- */
 dbhelper.prototype.exec = function (sql) {
 
     this.db = Ti.Database.open(this.dbname);
@@ -83,23 +70,6 @@ dbhelper.prototype.getData = function () {
     return results;
 };
 
-/**
- Performs a SQL SELECT
- *
- db.get({
-		fields: 'id',
-		table: 'users',
-		where: 'email="some@email.com"',
- order: 'id ASC'
- },function(data){
-	 	console.log(data);
-	})
- *
- @method get
- @param {Object} obj Object with the properties: fields, table, where and order
- @param {Function} callback Callback function to execute when the SELECT has completed.
- @return {Object} JSON object
- */
 dbhelper.prototype.get = function (obj, callback) {
     obj.fields = obj.fields || '*';
 
@@ -123,21 +93,6 @@ dbhelper.prototype.get = function (obj, callback) {
     }
 }
 
-/**
- Performs a SQL SELECT for a single entry
- *
- db.get({
-		field: 'id',
-		table: 'users',
- },function(data){
-	 	console.log(data);
-	})
- *
- @method get
- @param {Object} obj Object with the properties: field and table
- @param {Function} callback Callback function to execute when the SELECT has completed.
- @return {Object} JSON object
- */
 dbhelper.prototype.getEntry = function (obj, callback) {
 
     var sql = 'SELECT * FROM ' + obj.table + ' WHERE id=' + obj.id + ' LIMIT 1';
@@ -152,13 +107,6 @@ dbhelper.prototype.getEntry = function (obj, callback) {
     }
 }
 
-/**
- * Returns an image from a Blob field
- * @method getImage
- @param {Object} obj Object with the properties: field, table and where
- @param {Function} callback Callback function to execute when the SELECT has completed.
- @return {Image} Image object
- */
 dbhelper.prototype.getImage = function (obj, callback) {
 
     var sql = "SELECT " + obj.field + " FROM " + obj.table;
@@ -172,11 +120,6 @@ dbhelper.prototype.getImage = function (obj, callback) {
     }
 }
 
-/**
- * Performs a SQL INSERT
- * @method set
- * @param {obj} object Object with the properties: table and data, which is a dictionary of field_name=value
- */
 dbhelper.prototype.set = function (obj) {
 
     var keys = Object.keys(obj.data);
@@ -201,12 +144,6 @@ dbhelper.prototype.set = function (obj) {
     }
 }
 
-/**
- * Performs a SQL DELETE
- * @method delete
- * @param {Object} obj Object with the properties: table and where
- * @return {Number} Amount of affected rows
- */
 dbhelper.prototype.delete = function (obj) {
 
     if (obj.where) {
@@ -219,13 +156,6 @@ dbhelper.prototype.delete = function (obj) {
     return this.db.rowsAffected;
 }
 
-/**
- * Performs a SQL COUNT
- *
- * Uses the field "id"
- * @param obj
- * @returns {Number}
- */
 dbhelper.prototype.countRows = function (obj, callback) {
 
     var sql = 'SELECT COUNT(id) as counter FROM ' + obj.table;
@@ -241,12 +171,6 @@ dbhelper.prototype.countRows = function (obj, callback) {
     }
 }
 
-/**
- * Performs a SQL UPDATE
- * @method edit
- * @param {Object} obj Object with the properties: table, where and data, which is a dictionary of field_name=value
- * @return {Number} Amount of affected rows
- */
 dbhelper.prototype.edit = function (obj) {
 
     var sql = "UPDATE " + obj.table + " SET ";
@@ -267,12 +191,6 @@ dbhelper.prototype.edit = function (obj) {
     return this.db.rowsAffected;
 }
 
-/**
- * Takes a flat JSON string and a table name and creates a table
- * @method createFromJSON
- * @param {String} json
- * @param {String} tableName
- */
 dbhelper.prototype.createFromJSON = function (json, tableName) {
 
     var _that = this;
@@ -299,30 +217,16 @@ dbhelper.prototype.createFromJSON = function (json, tableName) {
     })
 }
 
-/**
- * Closes the database
- * @method close
- */
 dbhelper.prototype.close = function () {
 
     this.db.close();
 }
 
-/**
- * Drops the database
- * @method drop
- */
 dbhelper.prototype.drop = function (tablename) {
 
     this.getData('DROP TABLE ' + tablename);
 }
 
-/**
- * Checks if the given table exists in the current database
- * @method tableExists
- * @param {String} tablename
- * @return {Boolean} True or False
- */
 dbhelper.prototype.tableExists = function (tablename) {
 
     var out, rs;
