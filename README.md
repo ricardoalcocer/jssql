@@ -54,7 +54,7 @@ Returns the Id of the last inserted row.
 ## SQL UPDATE
 Returns the amount of rows affected by the edit.
 
-	var rowsAffected=db.edit({
+	var rowsAffected=db.update({
 		table 	: 'events',
 		data 	:{
 			name : 'xTiConf NY',
@@ -96,6 +96,42 @@ or
 		win.backgroundImage=img;
 	});
 
+## GET ENTRY
+Used when you only want to get a single value from a database record
+
+	var userEmail=db.getEntry({
+		table: 	'users',
+		id: 	'5'
+		field: 	'email'
+	});
+	
+or
+
+	db.getEntry({
+		table: 	'users',
+		id: 	'5'
+		field: 	'email'
+	},function(value){
+		console.log(value);
+	});
+	
+## COUNT ROWS
+Returns the amount of rows returned by a give query
+
+	var totalActiveUsers=db.countRows({
+		table: 	'users',
+		where:	'active=true'
+	});
+	
+or
+
+	db.countRows({
+		table: 	'users',
+		where:	'active=true'
+	},function(value){
+		console.log(value);
+	});
+
 
 ## CREATE FROM JSON
 Takes a flat JSON string and creates a table.  Good for times when you get data from a Web Service and then need to search or manipulate the data in any way.
@@ -117,6 +153,10 @@ Closes the database connection
 
 	db.close();
 	
+## Contributors
+
+* [Ricardo Alcocer](https://github.com/ricardoalcocer) - Creator and maintainer
+* [Sebastian Klaus](https://github.com/caspahouzer)
 	
 # License
 MIT - [http://alco.mit-license.org](http://alco.mit-license.org)
