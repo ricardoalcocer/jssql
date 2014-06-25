@@ -116,6 +116,7 @@ dbhelper.prototype.get = function (obj, callback) {
     if (obj.limit) {
         sql += ' LIMIT ' + obj.limit
     }
+    console.log(sql);
     if (callback) {
         callback(this.getData(sql));
     } else {
@@ -243,11 +244,11 @@ dbhelper.prototype.countRows = function (obj, callback) {
 
 /**
  * Performs a SQL UPDATE
- * @method edit
+ * @method update
  * @param {Object} obj Object with the properties: table, where and data, which is a dictionary of field_name=value
  * @return {Number} Amount of affected rows
  */
-dbhelper.prototype.edit = function (obj) {
+dbhelper.prototype.update = function (obj) {
 
     var sql = "UPDATE " + obj.table + " SET ";
     var keys = Object.keys(obj.data);
@@ -265,6 +266,19 @@ dbhelper.prototype.edit = function (obj) {
     sql += sets.toString() + ' WHERE ' + obj.where;
     this.getData(sql);
     return this.db.rowsAffected;
+}
+
+/**
+ * Performs a SQL UPDATE
+ *
+ * Capsules the update function
+ *
+ * @method edit
+ * @param {Object} obj Object with the properties: table, where and data, which is a dictionary of field_name=value
+ * @return {Number} Amount of affected rows
+ */
+dbhelper.prototype.edit = function (obj) {
+    return this.update(obj);
 }
 
 /**
