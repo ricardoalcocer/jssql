@@ -54,7 +54,7 @@ Returns the Id of the last inserted row.
 ## SQL UPDATE
 Returns the amount of rows affected by the edit.
 
-	var rowsAffected=db.edit({
+	var rowsAffected=db.update({
 		table 	: 'events',
 		data 	:{
 			name : 'xTiConf NY',
