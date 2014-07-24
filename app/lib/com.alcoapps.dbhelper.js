@@ -116,6 +116,18 @@ dbhelper.prototype.get = function (obj, callback) {
     if (obj.limit) {
         sql += ' LIMIT ' + obj.limit
     }
+	if(obj.whereIn) {
+		var value = "";
+	
+		if (obj.whereIn instanceof Array) {
+			if (obj.whereIn.length > 0) {
+				value = '(\'' + obj.whereIn.join('\', \'') + '\')';
+			}
+		}
+	
+		sql += ' in ' + value;
+	}
+    
     if (callback) {
         callback(this.getData(sql));
     } else {
