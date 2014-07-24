@@ -58,16 +58,8 @@ dbhelper.prototype.getData = function () {
     if (resultSet) {
         while (resultSet.isValidRow()) {
             result = {};
-            /**
-             * @TODO
-             * When use SDK 3.3.X,
-             * fieldCount on iOS is not a function anymore!!!
-             */
-            if (Ti.Platform.getOsname() === 'android') {
-                var fieldCount = resultSet.fieldCount;
-            } else {
-                var fieldCount = resultSet.fieldCount();
-            }
+            var fieldCount = resultSet.fieldCount;
+            
             for (var i = 0; i < fieldCount; i++) {
                 var value = resultSet.field(i);
                 result[resultSet.fieldName(i)] = value;
