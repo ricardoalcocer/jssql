@@ -157,6 +157,7 @@ Closes the database connection
 
 * [Ricardo Alcocer](https://github.com/ricardoalcocer) - Creator and maintainer
 * [Sebastian Klaus](https://github.com/caspahouzer)
+* [Rick Blalock](https://github.com/rblalock)
 	
 # License
 MIT - [http://alco.mit-license.org](http://alco.mit-license.org)
