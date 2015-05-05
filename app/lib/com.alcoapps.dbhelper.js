@@ -44,8 +44,7 @@ dbhelper.prototype.exec = function (sql) {
 dbhelper.prototype.getData = function () {
     var result = null;
     var results =
-        [
-        ];
+        [];
 
     var db = Ti.Database.open(this.dbname);
 
@@ -58,11 +57,11 @@ dbhelper.prototype.getData = function () {
     if (resultSet) {
         while (resultSet.isValidRow()) {
             result = {};
+
             var fieldCount = resultSet.fieldCount;
-            
             for (var i = 0; i < fieldCount; i++) {
                 var value = resultSet.field(i);
-                result[resultSet.fieldName(i)] = value;
+				result[resultSet.fieldName(i)] = value;
             }
             results.push(result);
             resultSet.next();
@@ -93,9 +92,13 @@ dbhelper.prototype.getData = function () {
  @return {Object} JSON object
  */
 dbhelper.prototype.get = function (obj, callback) {
-    obj.fields = obj.fields || '*';
+    var fields = obj.fields || '*';
+    if (obj.joiner) {
+        fields = obj.fields || obj.joiner + '.*';
+    }
 
-    var sql = "SELECT " + obj.fields + " FROM " + obj.table;
+    var sql = "SELECT " + fields + " FROM " + obj.table;
+
     if (obj.where) {
         sql += ' WHERE ' + obj.where
     }
@@ -108,18 +111,16 @@ dbhelper.prototype.get = function (obj, callback) {
     if (obj.limit) {
         sql += ' LIMIT ' + obj.limit
     }
-	if(obj.whereIn) {
-		var value = "";
-	
-		if (obj.whereIn instanceof Array) {
-			if (obj.whereIn.length > 0) {
-				value = '(\'' + obj.whereIn.join('\', \'') + '\')';
-			}
-		}
-	
-		sql += ' in ' + value;
-	}
-    
+    if(obj.whereIn) {
+        var value = '';
+        if (obj.whereIn instanceof Array) {
+            if (obj.whereIn.length > 0) {
+                value = '(\'' + obj.whereIn.join('\', \'') + '\')';
+            }
+        }
+        sql += ' in ' + value;
+    }
+    //console.log(sql);
     if (callback) {
         callback(this.getData(sql));
     } else {
@@ -147,6 +148,9 @@ dbhelper.prototype.getEntry = function (obj, callback) {
     var sql = 'SELECT * FROM ' + obj.table + ' WHERE id=' + obj.id + ' LIMIT 1';
     if (obj.field) {
         sql = 'SELECT * FROM ' + obj.table + ' WHERE ' + obj.field + '="' + obj.id + '" LIMIT 1';
+    }
+    if (obj.where) {
+        sql = 'SELECT * FROM ' + obj.table + ' WHERE ' + obj.where + ' LIMIT 1';
     }
     var result = this.getData(sql);
     if (callback) {
@@ -197,9 +201,69 @@ dbhelper.prototype.set = function (obj) {
     })
 
     var sql = "INSERT INTO " + obj.table + " (" + keys.toString() + ") VALUES (" + vals.toString() + ")";
+    console.log(sql);
     try {
         this.getData(sql);
-        return this.db.lastInsertRowId;
+        return this.db.getLastInsertRowId();
+    } catch (e) {
+        console.log('err');
+    }
+}
+
+dbhelper.prototype.getLastId = function (obj, callback) {
+    var sql = "SELECT id FROM " + obj.table + " ORDER BY id DESC";
+    var result = this.getData(sql);
+
+    if (!result[0]) {
+        return null;
+    }
+
+    if (callback) {
+        callback(result[0].id);
+    } else {
+        return result[0].id;
+    }
+}
+
+dbhelper.prototype.getLastEntry = function (obj, callback) {
+    var sql = "SELECT * FROM " + obj.table + " ORDER BY id DESC";
+    var result = this.getData(sql);
+
+    if (!result[0]) {
+        return null;
+    }
+
+    if (callback) {
+        callback(result[0]);
+    } else {
+        return result[0];
+    }
+}
+
+/**
+ * Performs a SQL INSERT OR REPLACE
+ * @method set
+ * @param {obj} object Object with the properties: table and data, which is a dictionary of field_name=value
+ */
+dbhelper.prototype.insertOrReplace = function (obj) {
+
+    var keys = Object.keys(obj.data);
+    var vals = [];
+    keys.forEach(function (item) {
+        switch (typeof obj.data[item]) {
+            case "string":
+                vals.push('"' + obj.data[item] + '"');
+                break;
+            case "number":
+                vals.push(obj.data[item]);
+                break;
+        }
+    })
+
+    var sql = "INSERT OR REPLACE INTO " + obj.table + " (" + keys.toString() + ") VALUES (" + vals.toString() + ")";
+    try {
+        this.getData(sql);
+        return this.db.getLastInsertRowId();
     } catch (e) {
         console.log('err');
     }
@@ -233,8 +297,11 @@ dbhelper.prototype.delete = function (obj) {
 dbhelper.prototype.countRows = function (obj, callback) {
 
     var sql = 'SELECT COUNT(id) as counter FROM ' + obj.table;
+    if (obj.joiner) {
+        sql = 'SELECT COUNT(' + obj.joiner + '.id) as counter FROM ' + obj.table;
+    }
     if (obj.where) {
-        sql += ' WHERE ' + where;
+        sql += ' WHERE ' + obj.where;
     }
 
     var result = this.getData(sql);
@@ -265,7 +332,15 @@ dbhelper.prototype.update = function (obj) {
                 sets.push(item + ' = ' + obj.data[item]);
                 break;
         }
-    })
+    });
+
+    /**
+     * if ID given and "where" not, take ID to reference on ID field
+     */
+    if (obj.id && !obj.where) {
+        obj.where = 'id=' + obj.id;
+    }
+
     sql += sets.toString() + ' WHERE ' + obj.where;
     this.getData(sql);
     return this.db.rowsAffected;

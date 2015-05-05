@@ -40,6 +40,37 @@ Send a callback function .
 		console.log(evt);
 	});
 	
+### SQL SELECT with JOIN
+Returns JSON.
+
+	db.get({
+	    joiner : 'e'
+        fields 	: 'e.*',
+        table 	: 'events e, parties p',
+        where 	: 'e.country="US" AND p.event_id=e.id',
+        order 	: 'eid DESC'
+    },function(evt){
+        console.log(evt);
+    });
+    
+## SQL LAST ID
+Returns the Id of the last inserted row.
+
+	db.getLastId({
+		table: 'events'
+	},function(evt){
+         console.log(evt);
+    });
+    	
+## SQL LAST ID
+Returns the last inserted row object.
+
+    db.getLastEntry({
+        table: 'events'
+    },function(evt){
+         console.log(evt);
+    });
+    
 ## SQL INSERT
 Returns the Id of the last inserted row.
 
@@ -62,6 +93,17 @@ Returns the amount of rows affected by the edit.
 		},
 		where 	: 'id = 1'
 	});
+	
+or
+	
+	var rowsAffected=db.update({
+    		table 	: 'events',
+    		data 	:{
+    			name : 'xTiConf NY',
+    			country : 'PR'
+    		},
+    		id: 1
+    	});
 	
 ## SQL DELETE
 Returns the amount of rows affected by the delete.
@@ -131,6 +173,16 @@ or
 	},function(value){
 		console.log(value);
 	});
+	
+or with join
+
+	db.countRows({
+	    joiner: 'u',
+		table: 	'users u, images i',
+		where:	'u.active=true AND u.id = i.image_id'
+	},function(value){
+		console.log(value);
+	});	
 
 
 ## CREATE FROM JSON
