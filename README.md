@@ -194,6 +194,11 @@ Takes a flat JSON string and creates a table.  Good for times when you get data 
 Deletes a table
 
 	db.drop('myTable');
+	
+## ADD COLUMN
+Alter a table if the field doesn't exist
+
+	db.addColumn('user', 'street', 'VARCHAR');
 
 ## TABLE EXISTS
 Checks if a given table exists.

@@ -417,16 +417,35 @@ dbhelper.prototype.drop = function (tablename) {
  */
 dbhelper.prototype.tableExists = function (tablename) {
 
-    var out, rs;
-    rs = this.getData("SELECT name FROM sqlite_master WHERE type='table' AND name='" + tablename + "'");
+    var rs = this.getData("SELECT name FROM sqlite_master WHERE type='table' AND name='" + tablename + "'");
 
-    if (rs.rowCount === 1) {
-        rs.close();
-        return true
-    } else {
-        rs.close();
-        return false
+    if (rs.length > 0) {
+        return true;
     }
+    return false;
 }
+
+/**
+ * Alter a table if the field doesn't exist
+ * @param tblName
+ * @param newFieldName
+ * @param colSpec
+ */
+dbhelper.prototype.addColumn = function (tblName, newFieldName, colSpec) {
+    var db = this.db;
+    var fieldExists = false;
+    resultSet = db.execute('PRAGMA TABLE_INFO(' + tblName + ')');
+    while (resultSet.isValidRow()) {
+        if (resultSet.field(1) == newFieldName) {
+            fieldExists = true;
+        }
+        resultSet.next();
+    } // end while
+    if (!fieldExists) {
+        // field does not exist, so add it
+        db.execute('ALTER TABLE ' + tblName + ' ADD COLUMN ' + newFieldName + ' ' + colSpec);
+    }
+    db.close();
+};
 
 exports.dbhelper = dbhelper;
