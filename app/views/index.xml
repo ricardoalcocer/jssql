@@ -1,5 +1,22 @@
 <Alloy>
-	<Window class="container">
-		<Label id="label" onClick="doClick">Hello, World</Label>
-	</Window>
+	<TabGroup>
+		<Tab title="Table from JSON">
+			<Require src="createfromjson"/>
+		</Tab>
+		<Tab title="Show events">
+			<Require src="getrecs"/>
+		</Tab>
+		<Tab title="Add Record">
+			<Require src="addrec"/>
+		</Tab>
+		<!--<Tab title="Show events 2">
+			<Require src="getrecs2"/>
+		</Tab>
+		<Tab title="Edit">
+			<Require src="editrec"/>
+		</Tab>
+		<Tab title="Delete Record">
+			<Require src="delrec"/>
+		</Tab>-->
+	</TabGroup>
 </Alloy>

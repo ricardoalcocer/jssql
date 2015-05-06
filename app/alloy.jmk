@@ -1,4 +1,4 @@
-task("pre:compile", function(event,logger) {
+/*task("pre:compile", function(event,logger) {
 });
 
 task("post:compile",function(event,logger){
@@ -6,4 +6,4 @@ task("post:compile",function(event,logger){
 	exec("jsduck --config=docs/jsduck.json app");
 	
 	logger.info("[post-compile] JSDuck Documentation has been compiled.");
-});
+});*/

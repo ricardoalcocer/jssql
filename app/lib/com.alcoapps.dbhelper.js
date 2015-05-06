@@ -51,7 +51,7 @@ dbhelper.prototype.getData = function () {
     try {
         var resultSet = Function.apply.call(db.execute, db, arguments);
     } catch (err) {
-        alert('Database error');
+        console.log('There was a Database error'); // FIX: this should be a callback sent to getData
         return;
     }
     if (resultSet) {
@@ -61,7 +61,7 @@ dbhelper.prototype.getData = function () {
             var fieldCount = resultSet.fieldCount;
             for (var i = 0; i < fieldCount; i++) {
                 var value = resultSet.field(i);
-				result[resultSet.fieldName(i)] = value;
+                result[resultSet.fieldName(i)] = value;
             }
             results.push(result);
             resultSet.next();
@@ -78,13 +78,13 @@ dbhelper.prototype.getData = function () {
  Performs a SQL SELECT
  *
  db.get({
-		fields: 'id',
-		table: 'users',
-		where: 'email="some@email.com"',
+        fields: 'id',
+        table: 'users',
+        where: 'email="some@email.com"',
  order: 'id ASC'
  },function(data){
-	 	console.log(data);
-	})
+        console.log(data);
+    })
  *
  @method get
  @param {Object} obj Object with the properties: fields, table, where and order
@@ -132,11 +132,11 @@ dbhelper.prototype.get = function (obj, callback) {
  Performs a SQL SELECT for a single entry
  *
  db.get({
-		field: 'id',
-		table: 'users',
+        field: 'id',
+        table: 'users',
  },function(data){
-	 	console.log(data);
-	})
+        console.log(data);
+    })
  *
  @method get
  @param {Object} obj Object with the properties: field and table
@@ -201,14 +201,16 @@ dbhelper.prototype.set = function (obj) {
     })
 
     var sql = "INSERT INTO " + obj.table + " (" + keys.toString() + ") VALUES (" + vals.toString() + ")";
-    console.log(sql);
+    //console.log(sql);
     try {
         this.getData(sql);
-        return this.db.getLastInsertRowId();
+        return this.db.getLastInsertRowId(); //  FIX: I think this is broken because getData closes the DB.  Perhaps getData should return this value in the case of INSERT and DELETE?
     } catch (e) {
         console.log('err');
     }
 }
+
+
 
 dbhelper.prototype.getLastId = function (obj, callback) {
     var sql = "SELECT id FROM " + obj.table + " ORDER BY id DESC";
@@ -263,7 +265,7 @@ dbhelper.prototype.insertOrReplace = function (obj) {
     var sql = "INSERT OR REPLACE INTO " + obj.table + " (" + keys.toString() + ") VALUES (" + vals.toString() + ")";
     try {
         this.getData(sql);
-        return this.db.getLastInsertRowId();
+        return this.db.getLastInsertRowId(); //  FIX: I think this is broken because getData closes the DB.  Perhaps getData should return this value in the case of INSERT and DELETE?
     } catch (e) {
         console.log('err');
     }

@@ -11,7 +11,7 @@
 function doClick(e) {
     alert($.label.text);
 }
-
+/*
 var DBH=require('com.alcoapps.dbhelper');
 var db=new DBH.dbhelper('/alco.sqlite','alco');
 	
@@ -70,6 +70,6 @@ var db=new DBH.dbhelper('/alco.sqlite','alco');
 	db.close();
 
 //var reporter=require('com.alcoapps.reportdeviceinfo');
-//console.log(reporter.report());
+//console.log(reporter.report());*/
 
 $.index.open();

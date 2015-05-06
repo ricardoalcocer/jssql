@@ -1,0 +1,8 @@
+<Alloy>
+	<Window class="container" backgroundColor="#ffff" title="Add Record">
+		<RightNavButton>
+			<Button onClick="liveAction">Execute</Button>
+		</RightNavButton>
+		<TextArea id="console" class="console"/>
+	</Window>
+</Alloy>

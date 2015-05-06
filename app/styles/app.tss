@@ -1,0 +1,11 @@
+".console":{
+	top : "0",
+	width : Ti.UI.FILL,
+	height : Ti.UI.FILL,
+	editable : "false",
+	backgroundColor : "#000",
+	color : "#35CC35",
+	font:{
+		fontWeight: "bold"
+	}
+}
