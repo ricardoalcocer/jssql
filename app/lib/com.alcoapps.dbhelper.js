@@ -11,8 +11,8 @@
 /**
  * Creates an instance of the database class pointing to your local SQLite database
  * @constructor
- * @param {String} path Path to database to use
- * @param {String} name Name to give to your database
+ * @param {String} dbpath Path to database to use
+ * @param {String} dbname Name to give to your database
  * @param {Bool} remoteBackup Should the database on iOS be stored in iCloud
  */
 function dbhelper(dbpath, dbname, remoteBackup) {
@@ -39,19 +39,20 @@ dbhelper.prototype.exec = function (sql) {
     this.db.execute('COMMIT');
     this.db.close();
     return result;
-}
+};
 
 dbhelper.prototype.getData = function () {
     var result = null;
     var results =
         [];
 
-    var db = Ti.Database.open(this.dbname);
+    this.db = Ti.Database.open(this.dbname);
 
     try {
-        var resultSet = Function.apply.call(db.execute, db, arguments);
+        var resultSet = Function.apply.call(this.db.execute, this.db, arguments);
     } catch (err) {
-        console.log('There was a Database error'); // FIX: this should be a callback sent to getData
+        console.log('There was a database error');
+        console.log(err);
         return;
     }
     if (resultSet) {
@@ -60,16 +61,13 @@ dbhelper.prototype.getData = function () {
 
             var fieldCount = resultSet.fieldCount;
             for (var i = 0; i < fieldCount; i++) {
-                var value = resultSet.field(i);
-                result[resultSet.fieldName(i)] = value;
+                result[resultSet.fieldName(i)] = resultSet.field(i);
             }
             results.push(result);
             resultSet.next();
         }
         resultSet.close();
     }
-
-    db.close();
 
     return results;
 };
@@ -78,13 +76,13 @@ dbhelper.prototype.getData = function () {
  Performs a SQL SELECT
  *
  db.get({
-        fields: 'id',
-        table: 'users',
-        where: 'email="some@email.com"',
+		fields: 'id',
+		table: 'users',
+		where: 'email="some@email.com"',
  order: 'id ASC'
  },function(data){
-        console.log(data);
-    })
+	 	console.log(data);
+	})
  *
  @method get
  @param {Object} obj Object with the properties: fields, table, where and order
@@ -111,7 +109,7 @@ dbhelper.prototype.get = function (obj, callback) {
     if (obj.limit) {
         sql += ' LIMIT ' + obj.limit
     }
-    if(obj.whereIn) {
+    if (obj.whereIn) {
         var value = '';
         if (obj.whereIn instanceof Array) {
             if (obj.whereIn.length > 0) {
@@ -120,23 +118,27 @@ dbhelper.prototype.get = function (obj, callback) {
         }
         sql += ' in ' + value;
     }
-    //console.log(sql);
+
     if (callback) {
         callback(this.getData(sql));
-    } else {
-        return this.getData(sql);
+        this.db.close();
+        return;
     }
-}
+
+    var result = this.getData(sql);
+    this.db.close();
+    return result;
+};
 
 /**
  Performs a SQL SELECT for a single entry
  *
  db.get({
-        field: 'id',
-        table: 'users',
+		field: 'id',
+		table: 'users',
  },function(data){
-        console.log(data);
-    })
+	 	console.log(data);
+	})
  *
  @method get
  @param {Object} obj Object with the properties: field and table
@@ -153,12 +155,14 @@ dbhelper.prototype.getEntry = function (obj, callback) {
         sql = 'SELECT * FROM ' + obj.table + ' WHERE ' + obj.where + ' LIMIT 1';
     }
     var result = this.getData(sql);
+    this.db.close();
+
     if (callback) {
         callback(result[0]);
     } else {
         return result[0];
     }
-}
+};
 
 /**
  * Returns an image from a Blob field
@@ -172,13 +176,13 @@ dbhelper.prototype.getImage = function (obj, callback) {
     var sql = "SELECT " + obj.field + " FROM " + obj.table;
     var rs = this.getData(sql);
     var img = rs.fieldByName(obj.field)
-    rs.close();
+    this.db.close();
     if (callback) {
         callback(img);
     } else {
         return img;
     }
-}
+};
 
 /**
  * Performs a SQL INSERT
@@ -201,20 +205,17 @@ dbhelper.prototype.set = function (obj) {
     })
 
     var sql = "INSERT INTO " + obj.table + " (" + keys.toString() + ") VALUES (" + vals.toString() + ")";
-    //console.log(sql);
-    try {
-        this.getData(sql);
-        return this.db.getLastInsertRowId(); //  FIX: I think this is broken because getData closes the DB.  Perhaps getData should return this value in the case of INSERT and DELETE?
-    } catch (e) {
-        console.log('err');
-    }
-}
 
-
+    this.getData(sql);
+    var lastId = this.db.getLastInsertRowId();
+    this.db.close();
+    return lastId;
+};
 
 dbhelper.prototype.getLastId = function (obj, callback) {
     var sql = "SELECT id FROM " + obj.table + " ORDER BY id DESC";
     var result = this.getData(sql);
+    this.db.close();
 
     if (!result[0]) {
         return null;
@@ -225,11 +226,12 @@ dbhelper.prototype.getLastId = function (obj, callback) {
     } else {
         return result[0].id;
     }
-}
+};
 
 dbhelper.prototype.getLastEntry = function (obj, callback) {
     var sql = "SELECT * FROM " + obj.table + " ORDER BY id DESC";
     var result = this.getData(sql);
+    this.db.close();
 
     if (!result[0]) {
         return null;
@@ -240,7 +242,7 @@ dbhelper.prototype.getLastEntry = function (obj, callback) {
     } else {
         return result[0];
     }
-}
+};
 
 /**
  * Performs a SQL INSERT OR REPLACE
@@ -250,32 +252,31 @@ dbhelper.prototype.getLastEntry = function (obj, callback) {
 dbhelper.prototype.insertOrReplace = function (obj) {
 
     var keys = Object.keys(obj.data);
-    var vals = [];
+    var values = [];
     keys.forEach(function (item) {
         switch (typeof obj.data[item]) {
             case "string":
-                vals.push('"' + obj.data[item] + '"');
+                values.push('"' + obj.data[item] + '"');
                 break;
             case "number":
-                vals.push(obj.data[item]);
+                values.push(obj.data[item]);
                 break;
         }
     })
 
-    var sql = "INSERT OR REPLACE INTO " + obj.table + " (" + keys.toString() + ") VALUES (" + vals.toString() + ")";
-    try {
-        this.getData(sql);
-        return this.db.getLastInsertRowId(); //  FIX: I think this is broken because getData closes the DB.  Perhaps getData should return this value in the case of INSERT and DELETE?
-    } catch (e) {
-        console.log('err');
-    }
-}
+    var sql = "INSERT OR REPLACE INTO " + obj.table + " (" + keys.toString() + ") VALUES (" + values.toString() + ")";
+
+    this.getData(sql);
+    var lastId = this.db.getLastInsertRowId();
+    this.db.close();
+    return lastId;
+};
 
 /**
  * Performs a SQL DELETE
  * @method delete
  * @param {Object} obj Object with the properties: table and where
- * @return {Number} Amount of affected rows
+ * @return {Bool} Deleted with success
  */
 dbhelper.prototype.delete = function (obj) {
 
@@ -286,8 +287,10 @@ dbhelper.prototype.delete = function (obj) {
     }
 
     this.getData(sql);
-    return this.db.rowsAffected;
-}
+    var rows = this.db.rowsAffected;
+    this.db.close();
+    return rows;
+};
 
 /**
  * Performs a SQL COUNT
@@ -307,12 +310,14 @@ dbhelper.prototype.countRows = function (obj, callback) {
     }
 
     var result = this.getData(sql);
+    this.db.close();
+
     if (callback) {
         callback(result[0].counter);
     } else {
         return result[0].counter;
     }
-}
+};
 
 /**
  * Performs a SQL UPDATE
@@ -344,9 +349,12 @@ dbhelper.prototype.update = function (obj) {
     }
 
     sql += sets.toString() + ' WHERE ' + obj.where;
+
     this.getData(sql);
-    return this.db.rowsAffected;
-}
+    var rows = this.db.rowsAffected;
+    this.db.close();
+    return rows;
+};
 
 /**
  * Performs a SQL UPDATE
@@ -359,7 +367,7 @@ dbhelper.prototype.update = function (obj) {
  */
 dbhelper.prototype.edit = function (obj) {
     return this.update(obj);
-}
+};
 
 /**
  * Takes a flat JSON string and a table name and creates a table
@@ -391,25 +399,16 @@ dbhelper.prototype.createFromJSON = function (json, tableName) {
         sql = "INSERT INTO " + tableName + " (" + fieldsPure + ") VALUES (" + values.toString() + ")";
         _that.db.execute(sql);
     })
-}
-
-/**
- * Closes the database
- * @method close
- */
-dbhelper.prototype.close = function () {
-
-    this.db.close();
-}
+};
 
 /**
  * Drops the database
  * @method drop
  */
 dbhelper.prototype.drop = function (tablename) {
-
     this.getData('DROP TABLE ' + tablename);
-}
+    this.db.close()
+};
 
 /**
  * Checks if the given table exists in the current database
@@ -420,12 +419,13 @@ dbhelper.prototype.drop = function (tablename) {
 dbhelper.prototype.tableExists = function (tablename) {
 
     var rs = this.getData("SELECT name FROM sqlite_master WHERE type='table' AND name='" + tablename + "'");
+    this.db.close();
 
     if (rs.length > 0) {
         return true;
     }
     return false;
-}
+};
 
 /**
  * Alter a table if the field doesn't exist
@@ -434,9 +434,8 @@ dbhelper.prototype.tableExists = function (tablename) {
  * @param colSpec
  */
 dbhelper.prototype.addColumn = function (tblName, newFieldName, colSpec) {
-    var db = this.db;
     var fieldExists = false;
-    resultSet = db.execute('PRAGMA TABLE_INFO(' + tblName + ')');
+    var resultSet = this.db.execute('PRAGMA TABLE_INFO(' + tblName + ')');
     while (resultSet.isValidRow()) {
         if (resultSet.field(1) == newFieldName) {
             fieldExists = true;
@@ -445,9 +444,9 @@ dbhelper.prototype.addColumn = function (tblName, newFieldName, colSpec) {
     } // end while
     if (!fieldExists) {
         // field does not exist, so add it
-        db.execute('ALTER TABLE ' + tblName + ' ADD COLUMN ' + newFieldName + ' ' + colSpec);
+        this.db.execute('ALTER TABLE ' + tblName + ' ADD COLUMN ' + newFieldName + ' ' + colSpec);
     }
-    db.close();
+    this.db.close();
 };
 
 exports.dbhelper = dbhelper;
